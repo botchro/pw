@@ -21,12 +21,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// PasswordSet an password data set
-type PasswordSet struct {
-	tag      string
-	password string
-}
-
 // addCmd represents the add command
 var addCmd = &cobra.Command{
 	Use:   "add",
@@ -41,17 +35,13 @@ var addCmd = &cobra.Command{
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		ps := PasswordSet{tag: args[0], password: args[1]}
-		if err := ps.register(); err != nil {
+		p := Password{Tag: args[0], Password: args[1]}
+		if err := p.Register(); err != nil {
 			return err
 		}
-		fmt.Println("Successfully registered new password for tag", ps.tag)
+		fmt.Println("Successfully registered new password for tag", p.Tag)
 		return nil
 	},
-}
-
-func (ps *PasswordSet) register() error {
-	return nil
 }
 
 func init() {
