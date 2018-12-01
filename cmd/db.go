@@ -40,8 +40,13 @@ func (dbHelper *DbHelper) ExistsTable(tableName string) bool {
 }
 
 // Execute execute query
-func (dbHelper *DbHelper) Execute(sql string) error {
-	return nil
+func (dbHelper *DbHelper) Execute(sql string) (sql.Result, error) {
+	return dbHelper.DB.Exec(sql)
+}
+
+// GetRow get a single row
+func (dbHelper *DbHelper) GetRow(sql string, args ...interface{}) *sql.Row {
+	return dbHelper.DB.QueryRow(sql, args...)
 }
 
 // GetDbFilePath get the file path to the db file

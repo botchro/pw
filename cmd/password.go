@@ -1,6 +1,9 @@
 package cmd
 
-import "fmt"
+import (
+	"database/sql"
+	"fmt"
+)
 
 // Password an password data set
 type Password struct {
@@ -8,13 +11,12 @@ type Password struct {
 	Password string
 }
 
-func createTable(dbHelper *DbHelper) error {
+func createTable(dbHelper *DbHelper) (sql.Result, error) {
 	return dbHelper.Execute(`
 	create table password (
-		id integer autoincrement primary key,
-		tag varchar not null,
-		password varchar not null,
-		key tag (tag)
+		id integer primary key autoincrement,
+		tag text not null,
+		password text not null
 	);
 	`)
 }
@@ -29,15 +31,39 @@ func (ps *Password) Register() error {
 	defer dbHelper.Close()
 
 	if !dbHelper.ExistsTable("password") {
-		if err := createTable(&dbHelper); err != nil {
+		if _, err := createTable(&dbHelper); err != nil {
 			return err
 		}
 	}
 
-	err := dbHelper.Execute(fmt.Sprintf("insert into password (tag, password) values ('%s', '%s')", ps.Tag, ps.Password))
+	_, err := dbHelper.Execute(fmt.Sprintf("insert into password (tag, password) values ('%s', '%s')", ps.Tag, ps.Password))
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+// GetPassword get a registered password with the tag.
+func (ps *Password) GetPassword() (string, error) {
+
+	dbHelper := DbHelper{Name: "pw", Driver: "sqlite3"}
+	if err := dbHelper.Init(); err != nil {
+		return "", err
+	}
+	defer dbHelper.Close()
+
+	if !dbHelper.ExistsTable("password") {
+		if _, err := createTable(&dbHelper); err != nil {
+			return "", err
+		}
+	}
+
+	row := dbHelper.GetRow(`select password from password where tag = ?`, ps.Tag)
+	var password string
+	if err := row.Scan(&password); err != nil {
+		return "", err
+	}
+
+	return password, nil
 }
