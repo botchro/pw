@@ -54,9 +54,7 @@ func (ps *Password) GetPassword() (string, error) {
 	defer dbHelper.Close()
 
 	if !dbHelper.ExistsTable("password") {
-		if _, err := createTable(&dbHelper); err != nil {
-			return "", err
-		}
+		return "", fmt.Errorf("No password registed")
 	}
 
 	row := dbHelper.GetRow(`select password from password where tag = ?`, ps.Tag)
@@ -66,4 +64,35 @@ func (ps *Password) GetPassword() (string, error) {
 	}
 
 	return password, nil
+}
+
+// GetTagList get the list of tags
+func (ps *Password) GetTagList() ([]string, error) {
+	dbHelper := DbHelper{Name: "pw", Driver: "sqlite3"}
+	if err := dbHelper.Init(); err != nil {
+		return nil, err
+	}
+	defer dbHelper.Close()
+
+	if !dbHelper.ExistsTable("password") {
+		return nil, fmt.Errorf("No password registed")
+	}
+
+	rows, err := dbHelper.GetRows(`select tag from password`)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var tags []string
+	for rows.Next() {
+		var tag string
+		if err := rows.Scan(&tag); err != nil {
+			return nil, err
+		}
+		tags = append(tags, tag)
+	}
+
+	return tags, nil
 }

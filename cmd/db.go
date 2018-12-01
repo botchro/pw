@@ -49,6 +49,11 @@ func (dbHelper *DbHelper) GetRow(sql string, args ...interface{}) *sql.Row {
 	return dbHelper.DB.QueryRow(sql, args...)
 }
 
+// GetRows get rows
+func (dbHelper *DbHelper) GetRows(sql string, args ...interface{}) (*sql.Rows, error) {
+	return dbHelper.DB.Query(sql, args...)
+}
+
 // GetDbFilePath get the file path to the db file
 func (dbHelper *DbHelper) GetDbFilePath() string {
 	return fmt.Sprintf("./%s.db", dbHelper.Name)
