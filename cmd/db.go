@@ -39,17 +39,9 @@ func (dbHelper *DbHelper) ExistsTable(tableName string) bool {
 	return err == nil
 }
 
-// CreateTable create a new table
-func (dbHelper *DbHelper) CreateTable(tableName string, columns map[string]string) error {
-	var sql string
-	sql += fmt.Sprintf("create table `%s` (", tableName)
-	for k, v := range columns {
-		sql += fmt.Sprintf("%s %s", k, v)
-	}
-	sql += ")"
-
-	_, err := dbHelper.DB.Exec(sql)
-	return err
+// Execute execute query
+func (dbHelper *DbHelper) Execute(sql string) error {
+	return nil
 }
 
 // GetDbFilePath get the file path to the db file

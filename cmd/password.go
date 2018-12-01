@@ -1,5 +1,7 @@
 package cmd
 
+import "fmt"
+
 // Password an password data set
 type Password struct {
 	Tag      string
@@ -7,9 +9,14 @@ type Password struct {
 }
 
 func createTable(dbHelper *DbHelper) error {
-	return dbHelper.CreateTable("password", map[string]string{
-		"id": "integer primary key autoincrement",
-	})
+	return dbHelper.Execute(`
+	create table password (
+		id integer autoincrement primary key,
+		tag varchar not null,
+		password varchar not null,
+		key tag (tag)
+	);
+	`)
 }
 
 // Register register a new password
@@ -19,12 +26,17 @@ func (ps *Password) Register() error {
 	if err := dbHelper.Init(); err != nil {
 		return err
 	}
-	defer dbHelper.DB.Close()
+	defer dbHelper.Close()
 
 	if !dbHelper.ExistsTable("password") {
 		if err := createTable(&dbHelper); err != nil {
 			return err
 		}
+	}
+
+	err := dbHelper.Execute(fmt.Sprintf("insert into password (tag, password) values ('%s', '%s')", ps.Tag, ps.Password))
+	if err != nil {
+		return err
 	}
 
 	return nil
