@@ -35,11 +35,15 @@ var addCmd = &cobra.Command{
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		p := Password{Tag: args[0], Password: args[1]}
-		if err := p.Register(); err != nil {
+		ps := Password{Tag: args[0], Password: args[1]}
+		masterPassword, err := ps.GetMasterPassword()
+		if err != nil {
 			return err
 		}
-		fmt.Println("Successfully registered new password for tag", p.Tag)
+		if err := ps.Register(masterPassword); err != nil {
+			return err
+		}
+		fmt.Println("Successfully registered new password for tag", ps.Tag)
 		return nil
 	},
 }

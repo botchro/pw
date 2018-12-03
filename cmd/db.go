@@ -3,6 +3,7 @@ package cmd
 import (
 	"database/sql"
 	"fmt"
+	"os"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -14,9 +15,15 @@ type DbHelper struct {
 	DB     *sql.DB
 }
 
-// Init initialize
-func (dbHelper *DbHelper) Init() error {
-	db, err := sql.Open(dbHelper.Driver, dbHelper.GetDbFilePath())
+// ExistsDB check exists the database file
+func (dbHelper *DbHelper) ExistsDB() bool {
+	_, err := os.Stat(dbHelper.GetDbFilePath(""))
+	return err == nil
+}
+
+// Open open a database connection
+func (dbHelper *DbHelper) Open(masterPassword string) error {
+	db, err := sql.Open(dbHelper.Driver, dbHelper.Name)
 	if err != nil {
 		return err
 	}
@@ -55,6 +62,9 @@ func (dbHelper *DbHelper) GetRows(sql string, args ...interface{}) (*sql.Rows, e
 }
 
 // GetDbFilePath get the file path to the db file
-func (dbHelper *DbHelper) GetDbFilePath() string {
+func (dbHelper *DbHelper) GetDbFilePath(connectionString string) string {
+	if len(connectionString) > 0 {
+		return fmt.Sprintf("./%s.db?%s", dbHelper.Name, connectionString)
+	}
 	return fmt.Sprintf("./%s.db", dbHelper.Name)
 }

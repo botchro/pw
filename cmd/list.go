@@ -32,8 +32,13 @@ var listCmd = &cobra.Command{
 	bar.io
 	`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		p := new(Password)
-		tags, err := p.GetTagList()
+		ps := new(Password)
+		masterPassword, err := ps.GetMasterPassword()
+		if err != nil {
+			return err
+		}
+
+		tags, err := ps.GetTagList(masterPassword)
 		if err != nil {
 			return err
 		}

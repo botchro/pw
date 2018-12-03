@@ -38,8 +38,13 @@ var getCmd = &cobra.Command{
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		tag := args[0]
-		p := Password{Tag: tag, Password: ""}
-		password, err := p.GetPassword()
+		ps := Password{Tag: tag, Password: ""}
+		masterPassword, err := ps.GetMasterPassword()
+		if err != nil {
+			return err
+		}
+
+		password, err := ps.GetPassword(masterPassword)
 		if err != nil {
 			return err
 		}
